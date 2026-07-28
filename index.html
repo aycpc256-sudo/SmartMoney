@@ -102,7 +102,7 @@
         }
 
         .input-group input {
-            width: 120px;
+            width: 130px;
             padding: 8px;
             font-size: 14px;
             text-align: right;
@@ -116,6 +116,26 @@
             outline: none;
             border-color: #ff3b3b;
             box-shadow: 0 0 8px rgba(255, 59, 59, 0.3);
+        }
+
+        .input-group input[readonly] {
+            background: #151515;
+            color: #ff3b3b;
+            font-weight: bold;
+            border-color: #333;
+        }
+
+        .section-note {
+            font-size: 12px;
+            color: #888;
+            margin: 4px 0 10px;
+            line-height: 1.5;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #333;
+            margin: 14px 0;
         }
 
         .toggle-group {
@@ -161,8 +181,16 @@
             transition: all 0.2s;
         }
 
+        button.secondary {
+            background: #333;
+        }
+
         button:hover {
             background: #ff5555;
+        }
+
+        button.secondary:hover {
+            background: #444;
         }
 
         button:active {
@@ -272,37 +300,51 @@
         <button class="tab-btn" data-tab="navcalc">04 NAV 계산</button>
     </div>
 
-    <!-- TAB 1: 평단가 계산 -->
+    <!-- TAB 1: 평단가 계산 (2/3 입력 → 자동 역산) -->
     <div id="tab-avg" class="tab-content active">
         <div class="input-section">
             <div class="input-group">
-                <label>현재 보유수량</label>
-                <input type="number" id="a-qty1" value="79" placeholder="주">
+                <label>보유수량</label>
+                <input type="number" id="a-qty1" value="79" placeholder="주" oninput="computeAvgGroup()">
+            </div>
+            <div class="input-group">
+                <label>매수금액</label>
+                <input type="number" id="a-cost1" value="1806967" placeholder="원 (총 매입금액)" oninput="computeAvgGroup()">
             </div>
             <div class="input-group">
                 <label>현재 평단가</label>
-                <input type="number" id="a-avg1" value="22873" placeholder="원">
+                <input type="text" id="a-avg1-display" readonly placeholder="자동계산">
             </div>
-            <div class="input-group">
-                <label>추가매수 단가</label>
-                <input type="number" id="a-price2" value="19800" placeholder="원">
-            </div>
+
+            <hr class="divider">
+            <p class="section-note">아래 3개 항목 중 <b style="color:#ff3b3b;">2개만</b> 입력하세요. 나머지 1개는 자동으로 계산됩니다.</p>
+
             <div class="input-group">
                 <label style="color:#ff3b3b; font-weight:bold;">목표 평단가</label>
-                <input type="number" id="a-target" value="20000" placeholder="원" style="color:#ff3b3b; font-weight:bold;">
+                <input type="number" id="a-target" value="20000" placeholder="원" oninput="onGroupInput('a-target')">
             </div>
             <div class="input-group">
+                <label>추가매수 수량</label>
+                <input type="number" id="a-qty2" placeholder="주 (자동계산 가능)" oninput="onGroupInput('a-qty2')">
+            </div>
+            <div class="input-group">
+                <label>현재가</label>
+                <input type="number" id="a-price2" value="19800" placeholder="원 (추가매수 단가)" oninput="onGroupInput('a-price2')">
+            </div>
+
+            <hr class="divider">
+            <div class="input-group">
                 <label>수수료율</label>
-                <input type="number" id="a-fee" value="0.015" step="0.001" placeholder="%">
+                <input type="number" id="a-fee" value="0.015" step="0.001" placeholder="%" oninput="computeAvgGroup()">
             </div>
         </div>
         <div class="button-group">
-            <button onclick="calcAvg()">계산하기</button>
             <button onclick="copyResultAvg()">결과 복사</button>
+            <button class="secondary" onclick="resetAvgInputs()">초기화</button>
         </div>
         <div id="result-avg"></div>
         <div class="result-info">
-            💡 목표 평단가에 도달하기 위해 추가매수 단가에서 몇 주를 더 사야 하는지 계산합니다.
+            💡 목표 평단가 / 추가매수 수량 / 현재가 중 마지막으로 입력/수정한 2개를 기준으로 나머지 1개가 실시간 역산됩니다.
         </div>
     </div>
 
@@ -311,19 +353,19 @@
         <div class="input-section">
             <div class="input-group">
                 <label>평단가</label>
-                <input type="number" id="s-avg" value="12500" placeholder="원">
+                <input type="number" id="s-avg" value="12500" placeholder="원" oninput="calcSell()">
             </div>
             <div class="input-group">
                 <label>보유 수량</label>
-                <input type="number" id="s-qty" value="150" placeholder="주">
+                <input type="number" id="s-qty" value="150" placeholder="주" oninput="calcSell()">
             </div>
             <div class="input-group">
                 <label>목표 수익률</label>
-                <input type="number" id="s-target" value="10" step="0.5" placeholder="%">
+                <input type="number" id="s-target" value="10" step="0.5" placeholder="%" oninput="calcSell()">
             </div>
             <div class="input-group">
                 <label>매도 수수료</label>
-                <input type="number" id="s-fee" value="0.015" step="0.001" placeholder="%">
+                <input type="number" id="s-fee" value="0.015" step="0.001" placeholder="%" oninput="calcSell()">
             </div>
             <div style="margin-top:15px;">
                 <label style="display:block; font-size:13px; color:#aaa; margin-bottom:8px;">과세 구분</label>
@@ -334,7 +376,6 @@
             </div>
         </div>
         <div class="button-group">
-            <button onclick="calcSell()">계산하기</button>
             <button onclick="copyResultSell()">결과 복사</button>
         </div>
         <div id="result-sell"></div>
@@ -408,7 +449,6 @@
                 btn.classList.add('active');
                 document.getElementById('tab-' + tab).classList.add('active');
 
-                // 괴리율 탭이면 입력창에 포커스
                 if (tab === 'gap') {
                     setTimeout(() => document.getElementById('g-gap')?.focus(), 100);
                 } else if (tab === 'navcalc') {
@@ -422,62 +462,141 @@
             taxRate = rate;
             btn.parentElement.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            calcSell();
         }
 
         const fmt = n => isFinite(n) ? Math.round(n).toLocaleString('ko-KR') : '0';
         const fmtDec = (n, d=2) => isFinite(n) ? n.toFixed(d) : '0.00';
+        const getVal = id => {
+            const el = document.getElementById(id);
+            if (!el) return null;
+            const raw = el.value;
+            if (raw === '' || raw === null) return null;
+            const v = parseFloat(raw);
+            return isNaN(v) ? null : v;
+        };
 
-        function calcAvg() {
-            const qty1 = parseFloat(document.getElementById('a-qty1').value) || 0;
-            const avg1 = parseFloat(document.getElementById('a-avg1').value) || 0;
-            const price2 = parseFloat(document.getElementById('a-price2').value) || 0;
-            const target = parseFloat(document.getElementById('a-target').value) || 0;
-            const feeRate = (parseFloat(document.getElementById('a-fee').value) || 0) / 100;
+        // ===== TAB 1: 평단가 (2/3 입력 → 자동 역산) =====
+        // 목표평단가 / 추가매수수량 / 현재가 중, 마지막으로 손으로 수정한 2개를 "manualStack"에 보관.
+        // 나머지 1개(outputId)를 그 2개 값으로부터 계산해서 채워 넣는다.
+        let manualStack = ['a-target', 'a-price2']; // 기본값: 목표평단가+현재가 → 추가매수수량 자동계산
 
-            if (qty1 <= 0 || avg1 <= 0 || price2 <= 0 || target <= 0) {
-                alert('모든 값을 정확히 입력하세요!');
+        function onGroupInput(id) {
+            manualStack = manualStack.filter(x => x !== id);
+            manualStack.push(id);
+            if (manualStack.length > 2) manualStack.shift();
+            computeAvgGroup();
+        }
+
+        function resetAvgInputs() {
+            document.getElementById('a-target').value = '';
+            document.getElementById('a-qty2').value = '';
+            document.getElementById('a-price2').value = '';
+            manualStack = [];
+            computeAvgGroup();
+        }
+
+        function computeAvgGroup() {
+            const qty1 = getVal('a-qty1');
+            const cost1 = getVal('a-cost1');
+            const display = document.getElementById('a-avg1-display');
+
+            if (qty1 === null || cost1 === null || qty1 <= 0) {
+                display.value = '';
+                document.getElementById('result-avg').innerHTML = '';
                 return;
             }
-            if (Math.abs(price2 - target) < 0.01) {
-                alert('추가매수 단가와 목표평단가가 같으면 계산이 불가능합니다!');
+            const avg1 = cost1 / qty1;
+            display.value = fmt(avg1) + ' 원';
+
+            const ids = ['a-target', 'a-qty2', 'a-price2'];
+            const outputId = ids.find(id => !manualStack.includes(id));
+
+            if (outputId) {
+                const manualIds = ids.filter(id => id !== outputId);
+                const vals = {};
+                let allManualFilled = true;
+                for (const id of manualIds) {
+                    vals[id] = getVal(id);
+                    if (vals[id] === null) allManualFilled = false;
+                }
+
+                if (allManualFilled) {
+                    let target = getVal('a-target');
+                    let qty2 = getVal('a-qty2');
+                    let price2 = getVal('a-price2');
+
+                    if (outputId === 'a-qty2') {
+                        if (price2 !== target) {
+                            let q2 = qty1 * (target - avg1) / (price2 - target);
+                            if (!isFinite(q2) || q2 < 0) q2 = 0;
+                            document.getElementById('a-qty2').value = Math.round(q2);
+                        }
+                    } else if (outputId === 'a-price2') {
+                        if (qty2 !== 0 && qty2 !== null) {
+                            const p2 = (target * (qty1 + qty2) - cost1) / qty2;
+                            if (isFinite(p2)) document.getElementById('a-price2').value = Math.round(p2);
+                        }
+                    } else if (outputId === 'a-target') {
+                        if ((qty1 + qty2) !== 0) {
+                            const t = (cost1 + qty2 * price2) / (qty1 + qty2);
+                            if (isFinite(t)) document.getElementById('a-target').value = Math.round(t);
+                        }
+                    }
+                }
+            }
+
+            renderAvgResult(qty1, cost1, avg1);
+        }
+
+        function renderAvgResult(qty1, cost1, avg1) {
+            const target = getVal('a-target');
+            const qty2 = getVal('a-qty2');
+            const price2 = getVal('a-price2');
+
+            if (target === null || qty2 === null || price2 === null) {
+                document.getElementById('result-avg').innerHTML = '';
                 return;
             }
 
-            let qty2 = qty1 * (target - avg1) / (price2 - target);
-            if (qty2 < 0) {
-                alert('목표 평단가 달성이 불가능합니다!');
-                return;
-            }
-            qty2 = Math.round(qty2);
-
-            const cost1 = qty1 * avg1;
+            const feeRate = (getVal('a-fee') || 0) / 100;
             const cost2 = qty2 * price2;
-            const totalCost = cost1 + cost2;
-            const totalQty = qty1 + qty2;
-            const newAvg = totalQty > 0 ? totalCost / totalQty : 0;
             const fee = cost2 * feeRate;
-            const totalWithFee = totalCost + fee;
-            const avgWithFee = totalWithFee / totalQty;
+            const totalCost = cost1 + cost2 + fee;
+            const totalQty = qty1 + qty2;
+            const avgWithFee = totalQty > 0 ? totalCost / totalQty : 0;
+
+            const plAmount1 = qty1 * (price2 - avg1);          // 기존 보유분 평가손익(현재가 기준)
+            const plRate1 = avg1 > 0 ? (price2 - avg1) / avg1 * 100 : 0;
+            const plRateTarget = target > 0 ? (price2 - target) / target * 100 : 0; // 매수 후 평단가 대비 현재가
 
             document.getElementById('result-avg').innerHTML = `
                 <table>
                     <tr><th>항목</th><th>값</th></tr>
-                    <tr><td class="positive" style="font-weight:bold;">추가 매수 수량</td><td class="positive" style="font-weight:bold;">${qty2.toLocaleString('ko-KR')}주</td></tr>
-                    <tr><td>추가 매수 금액</td><td>${fmt(cost2)}</td></tr>
-                    <tr><td>추가 수수료</td><td>${fmt(fee)}</td></tr>
+                    <tr><td>현재 평단가</td><td>${fmt(avg1)} 원</td></tr>
+                    <tr><td class="${plAmount1 >= 0 ? 'positive' : 'negative'}">보유분 평가손익</td>
+                        <td class="${plAmount1 >= 0 ? 'positive' : 'negative'}">${plAmount1 >= 0 ? '+' : ''}${fmt(plAmount1)} 원 (${plRate1 >= 0 ? '+' : ''}${fmtDec(plRate1)}%)</td></tr>
+                    <tr><th colspan="2" style="padding:10px; background:#222;">추가매수 계획</th></tr>
+                    <tr><td class="positive" style="font-weight:bold;">추가매수 수량</td><td class="positive" style="font-weight:bold;">${Math.round(qty2).toLocaleString('ko-KR')}주</td></tr>
+                    <tr><td>추가매수 단가(현재가)</td><td>${fmt(price2)} 원</td></tr>
+                    <tr><td>추가매수 금액</td><td>${fmt(cost2)} 원</td></tr>
+                    <tr><td>추가 수수료</td><td>${fmt(fee)} 원</td></tr>
                     <tr><th colspan="2" style="padding:10px; background:#222;">매수 완료 후</th></tr>
-                    <tr><td>총 보유수량</td><td>${totalQty.toLocaleString('ko-KR')}주</td></tr>
-                    <tr><td>총 매입금액</td><td>${fmt(totalCost)}</td></tr>
-                    <tr><td class="positive">예상 평단가</td><td class="positive">${fmt(Math.round(newAvg))}</td></tr>
-                    <tr><td>수수료 포함 평단가</td><td>${fmt(Math.round(avgWithFee))}</td></tr>
+                    <tr><td>총 보유수량</td><td>${Math.round(totalQty).toLocaleString('ko-KR')}주</td></tr>
+                    <tr><td class="positive" style="font-weight:bold;">총 매수비용</td><td class="positive" style="font-weight:bold;">${fmt(totalCost)} 원</td></tr>
+                    <tr><td class="positive">목표(예상) 평단가</td><td class="positive">${fmt(target)} 원</td></tr>
+                    <tr><td>수수료 포함 평단가</td><td>${fmt(avgWithFee)} 원</td></tr>
+                    <tr><td class="${plRateTarget >= 0 ? 'positive' : 'negative'}">매수 후 평단가 대비 현재가 손익률</td>
+                        <td class="${plRateTarget >= 0 ? 'positive' : 'negative'}">${plRateTarget >= 0 ? '+' : ''}${fmtDec(plRateTarget)}%</td></tr>
                 </table>`;
         }
 
+        // ===== TAB 2: 목표매도가 =====
         function calcSell() {
-            const avg = parseFloat(document.getElementById('s-avg').value) || 0;
-            const qty = parseFloat(document.getElementById('s-qty').value) || 0;
-            const target = (parseFloat(document.getElementById('s-target').value) || 0) / 100;
-            const feeRate = (parseFloat(document.getElementById('s-fee').value) || 0) / 100;
+            const avg = getVal('s-avg') || 0;
+            const qty = getVal('s-qty') || 0;
+            const target = (getVal('s-target') || 0) / 100;
+            const feeRate = (getVal('s-fee') || 0) / 100;
 
             const cost = avg * qty;
             const targetProfit = cost * target;
@@ -508,8 +627,9 @@
                 </table>`;
         }
 
+        // ===== TAB 3: 괴리율 =====
         function calcGap() {
-            const pct = parseFloat(document.getElementById("g-gap").value) || 0;
+            const pct = getVal('g-gap') || 0;
             let label = "", cls = "";
 
             if (Math.abs(pct) <= 0.2) {
@@ -541,9 +661,10 @@
                 </table>`;
         }
 
+        // ===== TAB 4: NAV =====
         function calcNavPrice() {
-            const nav = parseFloat(document.getElementById('n-nav').value) || 0;
-            const gapPct = parseFloat(document.getElementById('n-gap').value) || 0;
+            const nav = getVal('n-nav') || 0;
+            const gapPct = getVal('n-gap') || 0;
             const marketPrice = nav * (1 + gapPct / 100);
             const diff = marketPrice - nav;
             const absDiff = Math.abs(diff);
@@ -566,13 +687,12 @@
                 </table>`;
         }
 
+        // ===== 결과 복사 =====
         function copyResultAvg() {
-            if (!document.getElementById('result-avg').innerHTML.trim()) { alert('먼저 계산하세요!'); return; }
+            if (!document.getElementById('result-avg').innerHTML.trim()) { alert('입력값을 확인하세요!'); return; }
             const qty1 = document.getElementById('a-qty1').value;
-            const avg1 = document.getElementById('a-avg1').value;
-            const price2 = document.getElementById('a-price2').value;
-            const target = document.getElementById('a-target').value;
-            let text = `【목표 평단가 계산】\n현재 보유: ${qty1}주 @ ${fmt(avg1)}\n목표 평단가: ${fmt(target)}\n추가매수 단가: ${fmt(price2)}\n\n`;
+            const cost1 = document.getElementById('a-cost1').value;
+            let text = `【평단가 계산】\n보유수량: ${qty1}주\n매수금액: ${fmt(cost1)}원\n\n`;
             document.querySelectorAll('#result-avg table tr').forEach(r => {
                 text += [...r.cells].map(c => c.innerText).join('\t') + '\n';
             });
@@ -609,18 +729,11 @@
             navigator.clipboard.writeText(text).then(() => alert('결과가 복사되었습니다!'));
         }
 
-        // 엔터키로 계산 (해당 탭에 따라)
-        document.querySelectorAll('input').forEach(inp => {
-            inp.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    const activeTab = document.querySelector('.tab-content.active').id;
-                    if (activeTab === 'tab-avg') calcAvg();
-                    else if (activeTab === 'tab-sell') calcSell();
-                    else if (activeTab === 'tab-gap') calcGap();
-                    else if (activeTab === 'tab-navcalc') calcNavPrice();
-                }
-            });
-        });
+        // ===== 초기 렌더링 (버튼 없이도 진입 시 바로 결과 표시) =====
+        computeAvgGroup();
+        calcSell();
+        calcGap();
+        calcNavPrice();
     </script>
 </body>
 </html>
