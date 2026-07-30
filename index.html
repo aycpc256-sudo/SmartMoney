@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>📈 주식/ETF 계산기</title>
 <style>
 body { 
@@ -128,7 +128,7 @@ h2 { color:#ff3b3b; margin-bottom:10px; }
 .input-group input {
   width:100px;
   padding:6px;
-  font-size:12px;
+  font-size:16px;
   text-align:right;
   border-radius:6px;
   border:1px solid #444;
@@ -146,6 +146,7 @@ h2 { color:#ff3b3b; margin-bottom:10px; }
   gap:8px;
   justify-content:center;
   margin:15px 0;
+  flex-wrap:wrap;
 }
 
 button {
@@ -208,6 +209,149 @@ button:active { background:#d32f2f; }
   50%{text-shadow:0 0 20px #ff1a1a;} 
   100%{text-shadow:0 0 5px #ff4d4d;} 
 }
+
+.stock-price-box {
+  width:100%;
+  max-width:400px;
+  margin: 4px auto 0;
+}
+
+.price-input {
+  width:100%;
+  box-sizing:border-box;
+  padding:16px;
+  font-size:26px;
+  font-weight:bold;
+  text-align:center;
+  background:#1a1a1a;
+  border:2px solid #ff3b3b;
+  border-radius:10px;
+  color:#fff;
+  box-shadow: 0 0 12px rgba(255,59,59,0.5);
+}
+
+.price-input:focus {
+  outline:none;
+  box-shadow: 0 0 20px rgba(255,59,59,0.85);
+}
+
+.stock-section-title {
+  text-align:center;
+  font-size:13px;
+  font-weight:bold;
+  padding-bottom:6px;
+  margin-bottom:8px;
+  border-bottom:2px solid currentColor;
+}
+
+.stock-col-header {
+  display:flex;
+  justify-content:space-between;
+  font-size:11px;
+  color:#888;
+  font-weight:bold;
+  padding:0 8px 6px 8px;
+}
+
+.stock-base-row {
+  background: rgba(255,59,59,0.14);
+  border-radius:6px;
+  padding:8px;
+  text-align:center;
+  font-weight:bold;
+  color:#fff;
+  margin-bottom:8px;
+  font-size:12px;
+}
+
+.stock-row {
+  display:flex;
+  justify-content:space-between;
+  padding:8px;
+  border-bottom:1px solid #222;
+  font-size:13px;
+}
+
+.stock-row:last-child { border-bottom:none; }
+
+.num-input-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.num-input-wrap input.num-input {
+  padding-right: 26px !important;
+}
+
+.num-spin {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  bottom: 2px;
+  width: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.num-spin button {
+  flex: 1;
+  min-width: 0;
+  min-height: 14px;
+  padding: 0;
+  margin: 0;
+  font-size: 10px;
+  line-height: 1;
+  background: #333;
+  border: 1px solid #444;
+  color: #999;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.num-spin button:hover { background:#ff3b3b; color:#fff; border-color:#ff3b3b; }
+.num-spin button:active { background:#d32f2f; }
+.num-spin button:focus-visible { outline: 2px solid #ff3b3b; outline-offset: 1px; }
+
+.price-input.num-input {
+  padding-right: 40px !important;
+}
+
+.price-input-wrap .num-spin {
+  width: 32px;
+  right: 6px;
+  top: 8px;
+  bottom: 8px;
+}
+
+.price-input-wrap .num-spin button {
+  font-size: 13px;
+}
+
+.avg-mode-badge {
+  display:inline-block;
+  font-size:10px;
+  font-weight:bold;
+  padding:2px 8px;
+  border-radius:10px;
+  margin-left:6px;
+  vertical-align:middle;
+}
+
+.avg-mode-badge.forward { background:rgba(59,130,255,0.18); color:#3b82ff; }
+.avg-mode-badge.reverse { background:rgba(255,179,0,0.18); color:#ffb300; }
+
+.warn-box {
+  background: rgba(255,59,59,0.12);
+  border: 1px solid #ff3b3b;
+  color: #ff8080;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  text-align: center;
+  margin: 10px 0;
+}
 </style>
 </head>
 <body>
@@ -222,17 +366,14 @@ button:active { background:#d32f2f; }
 
 <!-- 주식 계산 -->
 <div id="mode-stock" class="mode-content">
-  <div class="input-section">
-    <div class="input-group">
-      <label>주가</label>
-      <input type="number" id="s-price" placeholder="입력" autofocus oninput="calcStock()">
-    </div>
+  <div class="stock-price-box">
+    <input type="text" inputmode="decimal" class="num-input price-input" id="s-price" placeholder="주가 입력" autofocus data-calc="calcStock">
   </div>
   <div class="button-group">
-    <button onclick="copyResultStock()">결과 복사</button>
+    <button onclick="copyResultStock()">결과 복사하기</button>
   </div>
   <div id="result-stock"></div>
-  <div class="result-info">💡 ±30% 구간별로 주가 변동시 예상 가격을 계산합니다.</div>
+  <div class="result-info">💡 주요 구간별(±3~30%) 예상 가격을 계산합니다.</div>
 </div>
 
 <!-- ETF 계산 -->
@@ -253,11 +394,11 @@ button:active { background:#d32f2f; }
         <div class="input-section">
           <div class="input-group">
             <label>매수수량</label>
-            <input type="number" id="a-qty1" value="5000" oninput="calcAvg('base')">
+            <input type="text" inputmode="decimal" class="num-input" id="a-qty1" placeholder="주" data-calc="calcAvg" data-calc-arg="base">
           </div>
           <div class="input-group">
             <label>매수단가</label>
-            <input type="number" id="a-avg1" value="5000" oninput="calcAvg('base')">
+            <input type="text" inputmode="decimal" class="num-input" id="a-avg1" placeholder="원" data-calc="calcAvg" data-calc-arg="base">
           </div>
           <div class="input-group">
             <label>매입금액</label>
@@ -265,7 +406,7 @@ button:active { background:#d32f2f; }
           </div>
           <div class="input-group">
             <label>수수료율</label>
-            <input type="number" id="a-fee" value="0.02" step="0.001" oninput="calcAvg('base')" style="width:60px;">
+            <input type="text" inputmode="decimal" class="num-input" id="a-fee" value="0.02" step="0.001" data-calc="calcAvg" data-calc-arg="base" style="width:72px;">
             <span style="color:#aaa; font-size:11px;">%</span>
           </div>
         </div>
@@ -273,23 +414,23 @@ button:active { background:#d32f2f; }
 
       <!-- 추가 매수 -->
       <div style="flex:1;">
-        <div style="font-size:11px; color:#3b82ff; font-weight:bold; margin-bottom:8px;">【추가 매수】</div>
+        <div style="font-size:11px; color:#3b82ff; font-weight:bold; margin-bottom:8px;">【추가 매수】<span id="avg-mode-badge"></span></div>
         <div class="input-section">
           <div class="input-group">
             <label style="color:#3b82ff;">① 수량</label>
-            <input type="number" id="a-qty2" placeholder="주" oninput="calcAvg('qty2')" style="color:#3b82ff;">
+            <input type="text" inputmode="decimal" class="num-input" id="a-qty2" placeholder="주" data-calc="calcAvg" data-calc-arg="qty2" style="color:#3b82ff;">
           </div>
           <div class="input-group">
             <label style="color:#3b82ff;">② 단가</label>
-            <input type="number" id="a-price2" placeholder="원" oninput="calcAvg('price2')" style="color:#3b82ff;">
+            <input type="text" inputmode="decimal" class="num-input" id="a-price2" placeholder="원" data-calc="calcAvg" data-calc-arg="price2" style="color:#3b82ff;">
           </div>
           <div class="input-group">
             <label style="color:#3b82ff;">③ 금액</label>
-            <input type="number" id="a-cost2" placeholder="원" oninput="calcAvg('cost2')" style="color:#3b82ff;">
+            <input type="text" inputmode="decimal" class="num-input" id="a-cost2" placeholder="원" data-calc="calcAvg" data-calc-arg="cost2" style="color:#3b82ff;">
           </div>
           <div class="input-group">
             <label>수수료율(동일)</label>
-            <input type="text" id="a-fee2-display" readonly style="background:#333; color:#aaa; width:60px;">
+            <input type="text" id="a-fee2-display" readonly style="background:#333; color:#aaa; width:72px;">
             <span style="color:#aaa; font-size:11px;">%</span>
           </div>
         </div>
@@ -304,19 +445,20 @@ button:active { background:#d32f2f; }
       <div style="font-size:11px; color:#4caf50; font-weight:bold; margin-bottom:8px;">【현재가 평가】</div>
       <div class="input-group">
         <label style="color:#4caf50;">현재 단가</label>
-        <input type="number" id="a-current" placeholder="원" oninput="calcAvg('current')" style="color:#4caf50;">
+        <input type="text" inputmode="decimal" class="num-input" id="a-current" placeholder="원" data-calc="calcAvg" data-calc-arg="current" style="color:#4caf50;">
       </div>
       <div class="input-group">
         <label style="color:#ffb300;">평균단가 입력</label>
-        <input type="number" id="a-target-avg" placeholder="목표 평단가" oninput="calcAvg('target')" style="color:#ffb300;">
+        <input type="text" inputmode="decimal" class="num-input" id="a-target-avg" placeholder="목표 평단가" data-calc="calcAvg" data-calc-arg="target" style="color:#ffb300;">
       </div>
     </div>
 
     <div class="button-group">
+      <button onclick="resetAvgMode()">추가매수 초기화</button>
       <button onclick="copyResultAvg()">결과 복사</button>
     </div>
 
-    <div class="result-info">💡 ①②③ 중 2개 입력 시 나머지 1개와 평균단가가 자동계산됩니다.<br>💡 평균단가를 직접 입력하면, 현재 단가로 매수한다고 가정하고 ①②③이 역산됩니다.</div>
+    <div class="result-info">💡 ①②③ 중 2개 입력 시 나머지 1개와 평균단가가 자동계산됩니다 (파란 배지: 정방향 모드).<br>💡 평균단가를 직접 입력하면, <b>"현재 단가" 값을 매수단가로 가정</b>하고 ①②③이 역산됩니다 (주황 배지: 역산 모드). 현재 단가를 먼저 입력해주세요.</div>
   </div>
 
   <!-- ETF TAB 2: 목표매도가 -->
@@ -329,22 +471,22 @@ button:active { background:#d32f2f; }
         <div class="input-section">
           <div class="input-group">
             <label>평단가</label>
-            <input type="number" id="s-avg" value="12500" oninput="calcSell('base')">
+            <input type="text" inputmode="decimal" class="num-input" id="s-avg" value="12500" data-calc="calcSell" data-calc-arg="base">
           </div>
           <div class="input-group">
             <label>보유 수량</label>
-            <input type="number" id="s-qty" value="150" oninput="calcSell('base')">
+            <input type="text" inputmode="decimal" class="num-input" id="s-qty" value="150" data-calc="calcSell" data-calc-arg="base">
           </div>
           <div class="input-group">
             <label>매도 수수료</label>
-            <input type="number" id="s-fee" value="0.015" step="0.001" oninput="calcSell('base')" style="width:60px;">
+            <input type="text" inputmode="decimal" class="num-input" id="s-fee" value="0.015" step="0.001" data-calc="calcSell" data-calc-arg="base" style="width:72px;">
             <span style="color:#aaa; font-size:11px;">%</span>
           </div>
           <div style="margin-top:10px;">
             <label style="font-size:11px; color:#aaa;">과세 구분</label>
             <div style="display:flex; gap:6px; margin-top:6px;">
-              <button style="flex:1; padding:6px; font-size:11px;" class="active" data-tax="0" onclick="setTax(0, this); calcSell('base');">국내주식형(비과세)</button>
-              <button style="flex:1; padding:6px; font-size:11px;" data-tax="15.4" onclick="setTax(15.4, this); calcSell('base');">그 외(15.4%)</button>
+              <button style="flex:1; padding:6px; font-size:11px;" id="tax-btn-0" data-tax="0" onclick="setTax(0, this); calcSell('base');">국내주식형(비과세)</button>
+              <button style="flex:1; padding:6px; font-size:11px;" id="tax-btn-1" data-tax="15.4" onclick="setTax(15.4, this); calcSell('base');">그 외(15.4%)</button>
             </div>
           </div>
         </div>
@@ -356,30 +498,31 @@ button:active { background:#d32f2f; }
         <div class="input-section">
           <div class="input-group">
             <label style="color:#3b82ff;">매도 수량</label>
-            <input type="number" id="s-sellqty" placeholder="주" oninput="calcSell('sellqty')" style="color:#3b82ff;">
+            <input type="text" inputmode="decimal" class="num-input" id="s-sellqty" placeholder="주" data-calc="calcSell" data-calc-arg="sellqty" style="color:#3b82ff;">
           </div>
           <div class="input-group">
             <label style="color:#3b82ff;">목표 수익률</label>
-            <input type="number" id="s-target" value="10" step="0.5" oninput="calcSell('rate')" style="color:#3b82ff; width:80px;">
+            <input type="text" inputmode="decimal" class="num-input" id="s-target" value="10" step="0.5" data-calc="calcSell" data-calc-arg="rate" style="color:#3b82ff; width:90px;">
             <span style="color:#aaa; font-size:11px;">%</span>
           </div>
           <div class="input-group">
             <label style="color:#ffb300;">목표 이익금액</label>
-            <input type="number" id="s-target-amt" placeholder="원" oninput="calcSell('amount')" style="color:#ffb300;">
+            <input type="text" inputmode="decimal" class="num-input" id="s-target-amt" placeholder="원" data-calc="calcSell" data-calc-arg="amount" style="color:#ffb300;">
           </div>
           <div class="input-group">
             <label style="color:#4caf50;">매도 단가</label>
-            <input type="number" id="s-sell-price" placeholder="원" oninput="calcSell('price')" style="color:#4caf50;">
+            <input type="text" inputmode="decimal" class="num-input" id="s-sell-price" placeholder="원" data-calc="calcSell" data-calc-arg="price" style="color:#4caf50;">
           </div>
         </div>
       </div>
     </div>
 
     <div class="button-group">
+      <button onclick="resetSellQty()">매도수량 보유량과 동일</button>
       <button onclick="copyResultSell()">결과 복사</button>
     </div>
     <div id="result-sell"></div>
-    <div class="result-info">💡 국내 주식형 ETF는 매매차익 비과세<br>💡 매도수량은 기본적으로 보유수량과 같으며, 일부만 매도하려면 직접 수정하세요.<br>💡 목표수익률·목표이익금액·매도단가 중 하나만 입력해도 나머지 둘이 자동계산됩니다.</div>
+    <div class="result-info">💡 국내 주식형 ETF는 매매차익 비과세<br>💡 매도수량은 기본적으로 보유수량과 같으며, 일부만 매도하려면 직접 수정하세요. "매도수량 보유량과 동일" 버튼으로 언제든 되돌릴 수 있습니다.<br>💡 목표수익률·목표이익금액·매도단가 중 하나만 입력해도 나머지 둘이 자동계산됩니다.</div>
   </div>
 
   <!-- ETF TAB 3: 괴리율 -->
@@ -387,11 +530,11 @@ button:active { background:#d32f2f; }
     <div class="input-section">
       <div class="input-group">
         <label>시장가</label>
-        <input type="number" id="g-market" value="10025" oninput="calcGap()">
+        <input type="text" inputmode="decimal" class="num-input" id="g-market" value="10025" data-calc="calcGap">
       </div>
       <div class="input-group">
         <label style="color:#ff3b3b;">괴리율</label>
-        <input type="number" id="g-gap" value="0.25" step="0.01" oninput="calcGap()" style="color:#ff3b3b; width:80px;">
+        <input type="text" inputmode="decimal" class="num-input" id="g-gap" value="0.25" step="0.01" data-calc="calcGap" style="color:#ff3b3b; width:90px;">
         <span style="color:#aaa; font-size:11px;">%</span>
       </div>
     </div>
@@ -416,6 +559,133 @@ document.getElementById("message").textContent = messages[Math.floor(Math.random
 
 const fmt = n => isFinite(n) ? Math.round(n).toLocaleString('ko-KR') : '0';
 
+// 콤마/공백이 섞인 문자열도 안전하게 숫자로 변환 [수정#4: 공백도 제거]
+function parseNum(v) {
+  return parseFloat(String(v).replace(/[, ]/g, ''));
+}
+
+// 입력창에 실시간으로 천단위 콤마를 적용 (커서 위치 보존)
+function formatNumberValue(input, preserveCursor) {
+  const oldVal = input.value;
+  if (oldVal === '') return;
+
+  let oldPos = 0, digitsBeforeCursor = 0;
+  if (preserveCursor) {
+    oldPos = input.selectionStart;
+    digitsBeforeCursor = oldVal.slice(0, oldPos).replace(/[^0-9]/g, '').length;
+  }
+
+  let raw = oldVal.replace(/,/g, '');
+  const neg = raw.trim().startsWith('-');
+  raw = raw.replace(/-/g, '');
+  raw = raw.replace(/[^0-9.]/g, '');
+  const dotIdx = raw.indexOf('.');
+  if (dotIdx !== -1) {
+    raw = raw.slice(0, dotIdx + 1) + raw.slice(dotIdx + 1).replace(/\./g, '');
+  }
+
+  const dotParts = raw.split('.');
+  let intPart = (dotParts[0] || '').replace(/^0+(?=[0-9])/, '');
+  const decPart = dotParts.length > 1 ? dotParts[1] : undefined;
+  const intFormatted = intPart ? Number(intPart).toLocaleString('en-US') : '';
+
+  let newVal;
+  if (raw === '') {
+    newVal = neg ? '-' : '';
+  } else {
+    newVal = (neg ? '-' : '') + intFormatted + (decPart !== undefined ? '.' + decPart : '');
+  }
+
+  input.value = newVal;
+
+  if (preserveCursor) {
+    let count = 0, pos = newVal.length;
+    for (let i = 0; i < newVal.length; i++) {
+      if (/[0-9]/.test(newVal[i])) count++;
+      if (count === digitsBeforeCursor) { pos = i + 1; break; }
+    }
+    if (digitsBeforeCursor === 0) pos = neg ? 1 : 0;
+    input.setSelectionRange(pos, pos);
+  }
+}
+
+// 콤마 입력창들에 실시간 포맷 + 연결된 계산함수 자동 실행 바인딩
+function triggerCalc(inp) {
+  const fn = inp.dataset.calc;
+  if (fn && typeof window[fn] === 'function') {
+    if ('calcArg' in inp.dataset) window[fn](inp.dataset.calcArg);
+    else window[fn]();
+  }
+}
+
+function bindNumInputs() {
+  document.querySelectorAll('.num-input').forEach(inp => {
+    formatNumberValue(inp, false); // 초기값에도 콤마 적용
+    inp.addEventListener('input', () => {
+      formatNumberValue(inp, true);
+      triggerCalc(inp);
+    });
+    addSpinner(inp);
+  });
+}
+
+// 숫자 입력창 옆에 위/아래 증감 버튼 추가 (콤마 입력창으로 바뀌며 사라진 기본 스피너 대체)
+// [수정#5: 터치/키보드 접근성 - 버튼 크기 확대, tabindex 부여, aria-label, 키보드 이벤트]
+function addSpinner(inp) {
+  if (inp.dataset.spun) return;
+  inp.dataset.spun = '1';
+
+  const step = parseFloat(inp.getAttribute('step')) || 1;
+  const decimals = (String(step).split('.')[1] || '').length;
+
+  const wrap = document.createElement('span');
+  wrap.className = 'num-input-wrap' + (inp.classList.contains('price-input') ? ' price-input-wrap' : '');
+  inp.parentNode.insertBefore(wrap, inp);
+  wrap.appendChild(inp);
+
+  const spin = document.createElement('span');
+  spin.className = 'num-spin';
+
+  const up = document.createElement('button');
+  up.type = 'button';
+  up.textContent = '▲';
+  up.tabIndex = 0;
+  up.setAttribute('aria-label', '값 증가');
+
+  const down = document.createElement('button');
+  down.type = 'button';
+  down.textContent = '▼';
+  down.tabIndex = 0;
+  down.setAttribute('aria-label', '값 감소');
+
+  function bump(dir) {
+    let cur = parseNum(inp.value);
+    if (isNaN(cur)) cur = 0;
+    let next = cur + dir * step;
+    if (next < 0) next = 0;
+    next = parseFloat(next.toFixed(decimals));
+    inp.value = String(next);
+    formatNumberValue(inp, false);
+    triggerCalc(inp);
+  }
+
+  function handleKey(e, dir) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      bump(dir);
+    }
+  }
+
+  up.addEventListener('click', () => bump(1));
+  down.addEventListener('click', () => bump(-1));
+  up.addEventListener('keydown', (e) => handleKey(e, 1));
+  down.addEventListener('keydown', (e) => handleKey(e, -1));
+
+  spin.appendChild(up);
+  spin.appendChild(down);
+  wrap.appendChild(spin);
+}
+
 // 클립보드 복사 헬퍼 (실패 시 폴백 포함)
 function copyToClipboard(text) {
   if (navigator.clipboard && window.isSecureContext) {
@@ -429,6 +699,7 @@ function copyToClipboard(text) {
   }
 }
 
+// [참고: execCommand는 deprecated지만 클립보드 API 미지원 환경(구형 브라우저/비HTTPS)을 위한 폴백으로 유지]
 function fallbackCopy(text) {
   const ta = document.createElement('textarea');
   ta.value = text;
@@ -457,6 +728,7 @@ document.querySelectorAll('.mode-tab').forEach(t => {
 });
 
 // ETF 하위 탭 (01/02/03) - 항상 #mode-etf 범위 내에서 active 전환
+// [수정#3: 탭 전환 시 해당 탭 재계산]
 document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
   btn.addEventListener('click', () => {
     const scope = document.getElementById('mode-etf');
@@ -464,64 +736,64 @@ document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
     scope.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+
+    const tabId = btn.dataset.tab;
+    if (tabId === 'avg') calcAvg();
+    else if (tabId === 'sell') calcSell();
+    else if (tabId === 'gap') calcGap();
   });
 });
 
 // ===== 주식 계산 =====
+const STOCK_LEVELS = [30, 25, 20, 15, 12, 10, 7, 5, 3];
+
 function calcStock() {
-  const base = parseFloat(document.getElementById('s-price').value);
-  if(isNaN(base) || base <= 0) { 
+  const base = parseNum(document.getElementById('s-price').value);
+  if (isNaN(base) || base <= 0) {
     document.getElementById('result-stock').innerHTML = '';
-    return; 
+    return;
   }
-  
-  let leftHtml = '';
-  let rightHtml = '';
-  
-  for(let i=-30;i<=30;i+=3){
-    const val = base*(1+i/100);
-    const itemHtml = `<div style="background:#1a1a1a; border:1px solid #333; padding:6px; border-radius:4px; display:flex; justify-content:space-between;">
-      <span style="color:#aaa;">${i}%</span>
-      <span style="color:#fff; font-weight:bold;">${fmt(val)}</span>
-    </div>`;
-    
-    if (i < 0) {
-      leftHtml += itemHtml;
-    } else {
-      rightHtml += itemHtml;
-    }
-  }
-  
-  let html = `<div style="display:flex; gap:12px; font-size:11px;">
+
+  let upRows = '';
+  let downRows = '';
+  STOCK_LEVELS.forEach(p => {
+    const upVal = base * (1 + p / 100);
+    const downVal = base * (1 - p / 100);
+    upRows += `<div class="stock-row"><span style="color:#ff3b3b; font-weight:bold;">+${p}%</span><span style="color:#fff; font-weight:bold;">${fmt(upVal)}</span></div>`;
+    downRows += `<div class="stock-row"><span style="color:#3b82ff; font-weight:bold;">-${p}%</span><span style="color:#fff; font-weight:bold;">${fmt(downVal)}</span></div>`;
+  });
+
+  const html = `<div style="display:flex; gap:16px;">
     <div style="flex:1;">
-      <div style="font-size:11px; color:#3b82ff; font-weight:bold; margin-bottom:8px;">【하락 −】</div>
-      <div style="display:flex; flex-direction:column; gap:6px;">
-        ${leftHtml}
-      </div>
+      <div class="stock-section-title" style="color:#ff3b3b;">상승 구간 (UP)</div>
+      <div class="stock-col-header"><span>%</span><span>가격</span></div>
+      <div class="stock-base-row">기준: ${fmt(base)}</div>
+      ${upRows}
     </div>
     <div style="flex:1;">
-      <div style="font-size:11px; color:#ff3b3b; font-weight:bold; margin-bottom:8px;">【상승 +】</div>
-      <div style="display:flex; flex-direction:column; gap:6px;">
-        ${rightHtml}
-      </div>
+      <div class="stock-section-title" style="color:#3b82ff;">하락 구간 (DOWN)</div>
+      <div class="stock-col-header"><span>%</span><span>가격</span></div>
+      <div class="stock-base-row">기준: ${fmt(base)}</div>
+      ${downRows}
     </div>
   </div>`;
-  
+
   document.getElementById('result-stock').innerHTML = html;
 }
 
 function copyResultStock() {
-  const base = parseFloat(document.getElementById('s-price').value);
+  const base = parseNum(document.getElementById('s-price').value);
   if (isNaN(base) || base <= 0) { alert('먼저 계산하세요!'); return; }
 
   let text = `【주가 변동률 계산】\n기준가: ${fmt(base)}\n\n`;
-  text += `등락률\t예상가\n`;
-  // 화면에 표시된 것과 동일한 -30%~+30% 구간을 그대로 출력 (i, j 이중 증가 버그 수정)
-  for (let i = -30; i <= 30; i += 3) {
-    const val = base * (1 + i / 100);
-    const sign = i >= 0 ? '+' : '';
-    text += `${sign}${i}%\t${fmt(val)}\n`;
-  }
+  text += `[상승 구간]\n`;
+  STOCK_LEVELS.forEach(p => {
+    text += `+${p}%\t${fmt(base * (1 + p / 100))}\n`;
+  });
+  text += `\n[하락 구간]\n`;
+  STOCK_LEVELS.forEach(p => {
+    text += `-${p}%\t${fmt(base * (1 - p / 100))}\n`;
+  });
   copyToClipboard(text);
 }
 
@@ -529,10 +801,32 @@ function copyResultStock() {
 let lastAvgResult = null;
 let avgInputMode = null; // 'forward'(①②③ 입력) | 'reverse'(평균단가 입력)
 
+// [수정#1: "추가매수 초기화" 버튼 - 모드와 입력값을 리셋해서 언제든 forward로 되돌릴 수 있게]
+function resetAvgMode() {
+  avgInputMode = null;
+  document.getElementById('a-qty2').value = '';
+  document.getElementById('a-price2').value = '';
+  document.getElementById('a-cost2').value = '';
+  document.getElementById('a-target-avg').value = '';
+  updateAvgModeBadge();
+  calcAvg();
+}
+
+function updateAvgModeBadge() {
+  const badge = document.getElementById('avg-mode-badge');
+  if (avgInputMode === 'forward') {
+    badge.innerHTML = '<span class="avg-mode-badge forward">정방향 모드</span>';
+  } else if (avgInputMode === 'reverse') {
+    badge.innerHTML = '<span class="avg-mode-badge reverse">역산 모드</span>';
+  } else {
+    badge.innerHTML = '';
+  }
+}
+
 function calcAvg(source) {
-  const qty1 = parseFloat(document.getElementById('a-qty1').value) || 0;
-  const avg1 = parseFloat(document.getElementById('a-avg1').value) || 0;
-  const feeRate = (parseFloat(document.getElementById('a-fee').value) || 0) / 100;
+  const qty1 = parseNum(document.getElementById('a-qty1').value) || 0;
+  const avg1 = parseNum(document.getElementById('a-avg1').value) || 0;
+  const feeRate = (parseNum(document.getElementById('a-fee').value) || 0) / 100;
 
   if (qty1 <= 0 || avg1 <= 0) {
     document.getElementById('result-avg').innerHTML = '';
@@ -547,31 +841,41 @@ function calcAvg(source) {
   document.getElementById('a-fee2-display').value = feeRate * 100;
 
   const currentVal = document.getElementById('a-current').value;
-  const current = currentVal !== '' ? parseFloat(currentVal) || 0 : 0;
+  const current = currentVal !== '' ? parseNum(currentVal) || 0 : 0;
 
   // 어떤 필드를 건드렸는지에 따라 계산 모드 전환 (base/current 입력은 기존 모드를 유지)
   if (source === 'target') avgInputMode = 'reverse';
   else if (source === 'qty2' || source === 'price2' || source === 'cost2') avgInputMode = 'forward';
 
+  updateAvgModeBadge();
+
   let qty2 = 0, price2 = 0, cost2 = 0, haveAddl = false;
+  let warnMsg = '';
 
   if (avgInputMode === 'reverse') {
     // 평균단가 입력 → 현재 단가를 매수단가로 가정하고 ①②③ 역산
-    const targetAvg = parseFloat(document.getElementById('a-target-avg').value) || 0;
-    const buyPrice = current > 0 ? current : (parseFloat(document.getElementById('a-price2').value) || 0);
+    const targetAvg = parseNum(document.getElementById('a-target-avg').value) || 0;
+    const buyPrice = current > 0 ? current : 0;
 
-    if (targetAvg > 0 && buyPrice > 0 && targetAvg !== buyPrice) {
+    if (buyPrice <= 0) {
+      // [수정#1: "현재 단가"가 비어있으면 역산이 불가능하다는 것을 명확히 안내]
+      warnMsg = '⚠️ 역산 모드에서는 "현재 단가"를 먼저 입력해야 합니다 (추가매수 예상단가로 사용됩니다)';
+      document.getElementById('a-qty2').value = '';
+      document.getElementById('a-price2').value = '';
+      document.getElementById('a-cost2').value = '';
+    } else if (targetAvg > 0 && targetAvg !== buyPrice) {
       const q2 = (cost1 - targetAvg * qty1) / (targetAvg - buyPrice);
       if (isFinite(q2) && q2 > 0) {
         qty2 = Math.round(q2);
         price2 = Math.round(buyPrice);
         cost2 = Math.round(qty2 * price2);
-        document.getElementById('a-qty2').value = qty2;
-        document.getElementById('a-price2').value = price2;
-        document.getElementById('a-cost2').value = cost2;
+        document.getElementById('a-qty2').value = fmt(qty2);
+        document.getElementById('a-price2').value = fmt(price2);
+        document.getElementById('a-cost2').value = fmt(cost2);
         haveAddl = true;
       } else {
-        // 목표 평단가가 달성 불가능한 범위 (예: 매수단가보다 낮게 사도 도달 못함)
+        // [수정#1: 목표 평단가 도달 불가능 시 조용히 비우지 않고 명확한 안내 메시지 표시]
+        warnMsg = '⚠️ 해당 목표 평단가는 입력하신 "현재 단가"로는 도달할 수 없습니다 (매수단가와 목표가의 방향을 확인해주세요)';
         document.getElementById('a-qty2').value = '';
         document.getElementById('a-price2').value = '';
         document.getElementById('a-cost2').value = '';
@@ -588,23 +892,23 @@ function calcAvg(source) {
     const hasCost2 = cost2Val !== '';
     const inputCount = (hasQty2 ? 1 : 0) + (hasPrice2 ? 1 : 0) + (hasCost2 ? 1 : 0);
 
-    if (hasQty2) qty2 = parseFloat(qty2Val) || 0;
-    if (hasPrice2) price2 = parseFloat(price2Val) || 0;
-    if (hasCost2) cost2 = parseFloat(cost2Val) || 0;
+    if (hasQty2) qty2 = parseNum(qty2Val) || 0;
+    if (hasPrice2) price2 = parseNum(price2Val) || 0;
+    if (hasCost2) cost2 = parseNum(cost2Val) || 0;
 
     if (inputCount >= 2) {
       if (!hasCost2 && hasQty2 && hasPrice2) {
         cost2 = qty2 * price2;
-        document.getElementById('a-cost2').value = Math.round(cost2);
+        document.getElementById('a-cost2').value = fmt(cost2);
       } else if (!hasPrice2 && hasQty2 && hasCost2) {
         price2 = qty2 > 0 ? cost2 / qty2 : 0;
-        document.getElementById('a-price2').value = Math.round(price2);
+        document.getElementById('a-price2').value = fmt(price2);
       } else if (!hasQty2 && hasPrice2 && hasCost2) {
         qty2 = price2 > 0 ? cost2 / price2 : 0;
-        document.getElementById('a-qty2').value = Math.round(qty2);
+        document.getElementById('a-qty2').value = fmt(qty2);
       } else {
         cost2 = qty2 * price2;
-        document.getElementById('a-cost2').value = Math.round(cost2);
+        document.getElementById('a-cost2').value = fmt(cost2);
       }
       qty2 = Math.round(qty2 || 0);
       price2 = Math.round(price2 || 0);
@@ -625,8 +929,11 @@ function calcAvg(source) {
 
     // forward 모드일 때만 평균단가 입력창에 결과를 반영 (reverse 모드에서는 사용자가 입력한 값을 유지)
     if (avgInputMode === 'forward') {
-      document.getElementById('a-target-avg').value = Math.round(avgWithoutFee);
+      document.getElementById('a-target-avg').value = fmt(avgWithoutFee);
     }
+  } else if (avgInputMode === 'forward') {
+    // 입력이 부족해져서 haveAddl이 false가 되면, 이전에 자동으로 채워졌던 평균단가도 같이 비움
+    document.getElementById('a-target-avg').value = '';
   }
 
   // 복사용 데이터 저장
@@ -636,7 +943,12 @@ function calcAvg(source) {
   };
 
   // 결과 HTML
-  let html = `<div class="result-grid">
+  let html = '';
+  if (warnMsg) {
+    html += `<div class="warn-box">${warnMsg}</div>`;
+  }
+
+  html += `<div class="result-grid">
     <div>
       <div style="font-size:11px; color:#aaa; font-weight:bold; margin-bottom:8px;">【현재】</div>
       <div class="result-table">
@@ -783,6 +1095,12 @@ let lastSellResult = null;
 let sellCalcMode = 'rate'; // 'rate'(목표수익률 입력) | 'amount'(목표이익금액 입력)
 let sellQtyUserSet = false; // 매도수량을 사용자가 직접 수정했는지 여부
 
+// [수정#2: 매도수량을 다시 보유수량과 동일하게 되돌리는 버튼용 함수]
+function resetSellQty() {
+  sellQtyUserSet = false;
+  calcSell('base');
+}
+
 function setTax(rate, btn) {
   taxRate = rate;
   btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
@@ -790,18 +1108,18 @@ function setTax(rate, btn) {
 }
 
 function calcSell(source) {
-  const avg = parseFloat(document.getElementById('s-avg').value) || 0;
-  const heldQty = parseFloat(document.getElementById('s-qty').value) || 0;
-  const feeRate = (parseFloat(document.getElementById('s-fee').value) || 0) / 100;
+  const avg = parseNum(document.getElementById('s-avg').value) || 0;
+  const heldQty = parseNum(document.getElementById('s-qty').value) || 0;
+  const feeRate = (parseNum(document.getElementById('s-fee').value) || 0) / 100;
 
   if (source === 'sellqty') sellQtyUserSet = true;
 
   // 매도수량: 사용자가 직접 입력하지 않았다면 보유수량과 항상 동일하게 자동 반영
   const sellQtyField = document.getElementById('s-sellqty');
   if (!sellQtyUserSet) {
-    sellQtyField.value = heldQty > 0 ? heldQty : '';
+    sellQtyField.value = heldQty > 0 ? fmt(heldQty) : '';
   }
-  const qty = parseFloat(sellQtyField.value) || 0;
+  const qty = parseNum(sellQtyField.value) || 0;
 
   const cost = avg * qty;
 
@@ -820,7 +1138,7 @@ function calcSell(source) {
 
   if (sellCalcMode === 'price') {
     // 매도단가를 직접 입력 → 나머지(수익률, 이익금액)를 정방향으로 계산
-    sellPrice = parseFloat(document.getElementById('s-sell-price').value) || 0;
+    sellPrice = parseNum(document.getElementById('s-sell-price').value) || 0;
     sellAmt = sellPrice * qty;
     const sellFeeTmp = sellAmt * feeRate;
     const preTaxProfitTmp = sellAmt - cost - sellFeeTmp;
@@ -828,17 +1146,17 @@ function calcSell(source) {
     targetProfit = preTaxProfitTmp - taxTmp;
     rate = cost > 0 ? (targetProfit / cost * 100) : 0;
     document.getElementById('s-target').value = Math.round(rate * 100) / 100;
-    document.getElementById('s-target-amt').value = Math.round(targetProfit);
+    document.getElementById('s-target-amt').value = fmt(targetProfit);
   } else {
     // 목표수익률 또는 목표이익금액을 기준으로 매도금액을 역산
     if (sellCalcMode === 'amount') {
-      targetProfit = parseFloat(document.getElementById('s-target-amt').value) || 0;
+      targetProfit = parseNum(document.getElementById('s-target-amt').value) || 0;
       rate = cost > 0 ? (targetProfit / cost * 100) : 0;
       document.getElementById('s-target').value = Math.round(rate * 100) / 100;
     } else {
-      const targetRate = (parseFloat(document.getElementById('s-target').value) || 0) / 100;
+      const targetRate = (parseNum(document.getElementById('s-target').value) || 0) / 100;
       targetProfit = cost * targetRate;
-      document.getElementById('s-target-amt').value = Math.round(targetProfit);
+      document.getElementById('s-target-amt').value = fmt(targetProfit);
     }
 
     sellAmt = (targetProfit + cost) / (1 - feeRate);
@@ -847,7 +1165,7 @@ function calcSell(source) {
       sellAmt = (cost + targetProfit / (1 - t)) / (1 - feeRate);
     }
     sellPrice = qty > 0 ? sellAmt / qty : 0;
-    document.getElementById('s-sell-price').value = Math.round(sellPrice);
+    document.getElementById('s-sell-price').value = fmt(sellPrice);
   }
 
   const sellFee = sellAmt * feeRate;
@@ -893,8 +1211,8 @@ function copyResultSell() {
 let lastGapResult = null;
 
 function calcGap() {
-  const market = parseFloat(document.getElementById('g-market').value) || 0;
-  const gapPct = parseFloat(document.getElementById('g-gap').value) || 0;
+  const market = parseNum(document.getElementById('g-market').value) || 0;
+  const gapPct = parseNum(document.getElementById('g-gap').value) || 0;
 
   if (market <= 0) {
     document.getElementById('result-gap').innerHTML = '';
@@ -929,8 +1247,13 @@ function copyResultGap() {
   copyToClipboard(text);
 }
 
+// [수정#6: 과세 버튼 초기 선택 상태를 JS에서 설정 - HTML에 하드코딩된 active 클래스 제거]
+document.getElementById('tax-btn-0').classList.add('active');
+
 // 기본값이 채워진 탭(목표매도가, 괴리율)은 로드 시 바로 결과를 보여줌
 window.addEventListener('DOMContentLoaded', () => {
+  bindNumInputs();
+  updateAvgModeBadge();
   calcAvg();
   calcSell();
   calcGap();
